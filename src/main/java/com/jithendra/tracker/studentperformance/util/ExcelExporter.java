@@ -18,7 +18,7 @@ public class ExcelExporter {
     private static final Logger log = LogManager.getLogger(ExcelExporter.class);
 
     // Export a list of students into a single Excel sheet
-    public void exportToExcel(List<Student> students) {
+    public static void exportToExcel(List<Student> students) {
         String outputPath = ConfigLoader.get("output.excel.path");
         log.info("Starting Excel export for all students. Output path: {}", outputPath);
 
@@ -61,7 +61,7 @@ public class ExcelExporter {
     }
 
     // Helper method to write header
-    private void writeHeader(Sheet sheet) {
+    private static void writeHeader(Sheet sheet) {
         Row headerRow = sheet.createRow(0);
         String[] headers = { "Student ID", "Name", "Course", "Marks" };
         for (int i = 0; i < headers.length; i++) {
@@ -77,7 +77,7 @@ public class ExcelExporter {
     }
 
     // Helper method to write student data
-    private void writeData(Sheet sheet, List<Student> students) {
+    private static void writeData(Sheet sheet, List<Student> students) {
         int rowNum = 1;
         for (Student student : students) {
             Row row = sheet.createRow(rowNum++);

@@ -20,6 +20,11 @@ public class StudentService {
         this.studentDAO = new StudentDAO();
     }
 
+    public StudentService(StudentDAO studentDAO) {
+        this.studentDAO = studentDAO;
+    }
+
+
     // Method to get all students
     public List<Student> getAllStudents() {
         log.info("Fetching all students...");
@@ -97,4 +102,24 @@ public class StudentService {
         return sortedStudents;
     }
 
+    public Student getStudentById(int studentId) throws SQLException, ClassNotFoundException {
+        log.info("Fetching student with ID: {}", studentId);
+        return studentDAO.getStudent(studentId);
+    }
+
+    public Student updateStudent(Student student) throws SQLException, ClassNotFoundException {
+        log.info("Updating student with ID: {}", student.getStudentId());
+        return studentDAO.updateStudent(student);
+    }
+
+    public void deleteStudent(int studentId) throws SQLException, ClassNotFoundException {
+        log.info("Deleting student with ID: {}", studentId);
+        Student deletedStudent = studentDAO.deleteStudent(studentId);
+
+        if (deletedStudent != null) {
+            log.info("Deleted student: {}", deletedStudent);
+        } else {
+            log.warn("No student found with ID: {}", studentId);
+        }
+    }
 }

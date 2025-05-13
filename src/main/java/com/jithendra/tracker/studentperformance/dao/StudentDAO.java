@@ -92,10 +92,93 @@ public class StudentDAO {
 
             int rowsAffected = preparedStatement.executeUpdate();
             log.info("Insert successful. Rows affected: {}", rowsAffected);
-        }  catch (SQLException e) {
+        } catch (SQLException e) {
             log.error("Error inserting student: {}", e.getMessage(), e);
             throw new SQLException("SQL Exception while inserting student", e);
         }
     }
+
+
+    public Student updateStudent(Student student) throws SQLException {
+        String query = "UPDATE students SET name = ?, course = ?, marks = ? WHERE studentId = ?";
+        log.info("Updating student with ID: {}", student.getStudentId());
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, student.getStudentName());
+            preparedStatement.setString(2, student.getCourseName());
+            preparedStatement.setDouble(3, student.getMarks());
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                log.info("Student updated successfully: {}", student);
+                return student;
+            } else {
+                log.warn("Student not found with ID: {}", student.getStudentId());
+                return null;
+            }
+        } catch (SQLException e) {
+            log.error("Error updating student: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    public Student deleteStudent(int studentId) throws SQLException, ClassNotFoundException {
+        log.info("Attempting to delete student with ID: {}", studentId);
+
+        Student studentToDelete = getStudent(studentId);
+        if (studentToDelete == null) {
+            log.warn("Student not found with ID: {}", studentId);
+            return null;
+        }
+
+        String query = "DELETE FROM students WHERE studentId = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, studentId);
+            int rowsDeleted = preparedStatement.executeUpdate();
+
+            if (rowsDeleted > 0) {
+                log.info("Student deleted successfully: {}", studentToDelete);
+                return studentToDelete;
+            } else {
+                log.warn("Delete failed for student ID: {}", studentId);
+                return null;
+            }
+        } catch (SQLException e) {
+            log.error("Error deleting student with ID {}: {}", studentId, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    public Student getStudent(int studentId) throws SQLException, ClassNotFoundException {
+        String query = "SELECT * FROM students WHERE studentId = ?";
+        log.info("Fetching student with ID: {}", studentId);
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, studentId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int studentid = resultSet.getInt("studentId");
+                String studentName = resultSet.getString("name");
+                String courseName = resultSet.getString("course");
+                double marks = resultSet.getDouble("marks");
+
+                Student student = new Student(studentid, studentName, courseName, marks);
+                log.info("Student found: {}", student);
+                return student;
+            } else {
+                log.warn("No student found with ID: {}", studentId);
+            }
+        } catch (SQLException e) {
+            log.error("Error fetching student with ID {}: {}", studentId, e.getMessage(), e);
+            throw e;
+        }
+
+        return null;
+    }
 }
+
 
