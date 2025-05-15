@@ -2,7 +2,9 @@ package com.jithendra.tracker.studentperformance.model;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+/**
+ * @author Narala Jithendra
+ */
 public class Student {
 
     private static final Logger log = LogManager.getLogger(Student.class);

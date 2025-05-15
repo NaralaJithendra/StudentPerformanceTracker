@@ -11,28 +11,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * @author Narala Jithendra
+ */
 public class ExcelExporter {
 
 
     private static final Logger log = LogManager.getLogger(ExcelExporter.class);
+    static String combinedoutputPath = ConfigLoader.get("output.excel.path.combined");
+    static String studentOutputPath = ConfigLoader.get("output.excel.path.student");
+    static String courseOutputPath = ConfigLoader.get("output.excel.path.course");
 
     // Export a list of students into a single Excel sheet
     public static void exportToExcel(List<Student> students) {
-        String outputPath = ConfigLoader.get("output.excel.path");
-        log.info("Starting Excel export for all students. Output path: {}", outputPath);
+
+        log.info("Starting Excel export for all students. Output path: {}", studentOutputPath);
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Student Performance");
             writeHeader(sheet);
             writeData(sheet, students);
 
-            try (FileOutputStream outputStream = new FileOutputStream(outputPath)) {
+            try (FileOutputStream outputStream = new FileOutputStream(studentOutputPath)) {
                 workbook.write(outputStream);
             }
 
-            System.out.println("Excel file generated successfully at: " + outputPath);
-            log.info("Excel file generated successfully at: {}", outputPath);
+            System.out.println("Excel file generated successfully at: " + studentOutputPath);
+            log.info("Excel file generated successfully at: {}", studentOutputPath);
         } catch (IOException e) {
             log.error("Error while exporting to Excel", e);
         }
@@ -40,8 +45,8 @@ public class ExcelExporter {
 
     // Optional: export grouped by course into multiple sheets
     public void exportGroupedByCourse(Map<String, List<Student>> courseMap) {
-        String outputPath = ConfigLoader.get("output.excel.path");
-        log.info("Starting grouped Excel export by course. Output path: {}", outputPath);
+
+        log.info("Starting grouped Excel export by course. Output path: {}", courseOutputPath);
         try (Workbook workbook = new XSSFWorkbook()) {
             for (Map.Entry<String, List<Student>> entry : courseMap.entrySet()) {
                 Sheet sheet = workbook.createSheet(entry.getKey());
@@ -49,12 +54,12 @@ public class ExcelExporter {
                 writeData(sheet, entry.getValue());
             }
 
-            try (FileOutputStream outputStream = new FileOutputStream(outputPath)) {
+            try (FileOutputStream outputStream = new FileOutputStream(courseOutputPath)) {
                 workbook.write(outputStream);
             }
 
-            System.out.println("Grouped Excel file generated at: " + outputPath);
-            log.info("Grouped Excel file generated successfully at: {}", outputPath);
+            System.out.println("Grouped Excel file generated at: " + courseOutputPath);
+            log.info("Grouped Excel file generated successfully at: {}", courseOutputPath);
         } catch (IOException e) {
             log.error("Error while exporting grouped data to Excel", e);
         }
@@ -92,5 +97,29 @@ public class ExcelExporter {
             sheet.autoSizeColumn(i);
         }
         log.debug("Data written to Excel sheet for {} students.", students.size());
+    }
+
+    public void exportCombined(List<Student> students, Map<String, List<Student>> courseMap) {
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet performanceSheet = workbook.createSheet("Student Performance");
+            writeHeader(performanceSheet);
+            writeData(performanceSheet, students);
+
+            for (Map.Entry<String, List<Student>> entry : courseMap.entrySet()) {
+                Sheet sheet = workbook.createSheet(entry.getKey());
+                writeHeader(sheet);
+                writeData(sheet, entry.getValue());
+            }
+
+            try (FileOutputStream outputStream = new FileOutputStream(combinedoutputPath)) {
+                workbook.write(outputStream);
+            }
+
+            System.out.println("Combined Excel file generated at: " + combinedoutputPath);
+
+        } catch (IOException e) {
+            System.out.println("Error while exporting combined data to Excel " + e);
+        }
     }
 }
